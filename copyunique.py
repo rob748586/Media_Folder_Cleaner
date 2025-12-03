@@ -127,7 +127,5 @@ def main():
                         # copy file if it does not exist.
                         if not Path(destination_path).exists():
                             copyfile (str(source_path), str(destination_path))
-    else:
-        print ("Source and destination folders not included, expects 2 parameters, e.g. python3 copyunique [source folder] [destination folder]")
 main()
 
