@@ -1,4 +1,5 @@
 import os
+import argparse
 from pathlib import Path
 from shutil import copyfile
 from exif import Image
@@ -74,55 +75,59 @@ def add_date_suffix_to_path_from_image_exif_and_create_paths(image_path, file_ty
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("sourcefolder")
+    parser.add_argument("destinationfolder")
+    args = parser.parse_args()
     # input directory containing unsorted files with duplicates to parse
-    input_path = Path('D:/To_Sort/')
+    input_path = Path(args.sourcefolder)
     
-    output_path = Path('D:/Date_Sorted_Photos/')
+    output_path = Path(args.destinationfolder)
 
-    mapper = DirectoryMapper()
+    if input_path.exists() and output_path.exists():
+        mapper = DirectoryMapper()
 
-    # enumerate the folder in path, adding all files recursively to the files_dictionary object.
-    mapper.map_directory(input_path, True)
+        # enumerate the folder in path, adding all files recursively to the files_dictionary object.
+        mapper.map_directory(input_path, True)
 
-    # output number of files and total number of duplicates to console.
-    mapper.display_results()
+        # output number of files and total number of duplicates to console.
+        mapper.display_results()
 
-    paths = mapper.get_file_paths()
+        paths = mapper.get_file_paths()
 
-    # accepted file types. key will be used as a subfolder when copying files.
-    file_types = {"Images" : {".jpg", ".jpeg", ".png", ".gif"},
-                  "Videos" : {".mp4", ".mov"}}
+        # accepted file types. key will be used as a subfolder when copying files.
+        file_types = {"Images" : {".jpg", ".jpeg", ".png", ".gif"},
+                    "Videos" : {".mp4", ".mov"}}
 
-    for filename in paths:
-        
-        # construct the full path to the file that will be copied.
-        source_path = str(Path.joinpath(paths[filename][0], filename))
-
-        # iterate through the accepted file types dictionary
-        for file_type in file_types:
+        for filename in paths:
             
-            # iterate through each acceptable extension for a given file type.
-            for extension in file_types[file_type]:
-                if str(source_path.lower()).endswith(extension):
+            # construct the full path to the file that will be copied.
+            source_path = str(Path.joinpath(paths[filename][0], filename))
 
-                    # append output path with the sub folder according to file type (image, movie, etc...)
-                    destination_path = Path.joinpath(output_path, file_type)
-
-                    if not Path.exists(destination_path):
-                        os.mkdir(str(destination_path))
-
-                    # if the file is an image exif data is used to append further subfolders according to year and month image was created.
-                    if file_type == "Images":
-                        destination_path = add_date_suffix_to_path_from_image_exif_and_create_paths(source_path, file_type, destination_path)
-                    
-                    # append filename to destination path.
-                    destination_path = Path.joinpath(destination_path,filename)
-                                    
-                    # copy file if it does not exist.
-                    if not Path(destination_path).exists():
-                        copyfile (str(source_path), str(destination_path))
+            # iterate through the accepted file types dictionary
+            for file_type in file_types:
                 
+                # iterate through each acceptable extension for a given file type.
+                for extension in file_types[file_type]:
+                    if str(source_path.lower()).endswith(extension):
 
+                        # append output path with the sub folder according to file type (image, movie, etc...)
+                        destination_path = Path.joinpath(output_path, file_type)
 
+                        if not Path.exists(destination_path):
+                            os.mkdir(str(destination_path))
+
+                        # if the file is an image exif data is used to append further subfolders according to year and month image was created.
+                        if file_type == "Images":
+                            destination_path = add_date_suffix_to_path_from_image_exif_and_create_paths(source_path, file_type, destination_path)
+                        
+                        # append filename to destination path.
+                        destination_path = Path.joinpath(destination_path,filename)
+                                        
+                        # copy file if it does not exist.
+                        if not Path(destination_path).exists():
+                            copyfile (str(source_path), str(destination_path))
+    else:
+        print ("Source and destination folders not included, expects 2 parameters, e.g. python3 copyunique [source folder] [destination folder]")
 main()
 
