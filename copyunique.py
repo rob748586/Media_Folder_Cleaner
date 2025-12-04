@@ -36,7 +36,14 @@ class DirectoryMapper:
         print (count, "files with duplicates.")
 
     def get_file_paths(self):
-        return self.file_path_dictionary
+        output_paths = []
+        
+        for filename, paths in self.file_path_dictionary.items():
+            for path in paths:
+                absolute_path = path / filename
+                output_paths.append(absolute_path)
+        
+        return output_paths
 
 # create a path in the format /inputpath/YYYY/MM where YYYY is the Year and MM is the numerical month
 # from the exif data, and create the folders if they do not already exist.
@@ -79,6 +86,7 @@ def main():
     parser.add_argument("sourcefolder")
     parser.add_argument("destinationfolder")
     args = parser.parse_args()
+    
     # input directory containing unsorted files with duplicates to parse
     input_path = Path(args.sourcefolder)
     
@@ -99,11 +107,7 @@ def main():
         file_types = {"Images" : {".jpg", ".jpeg", ".png", ".gif"},
                     "Videos" : {".mp4", ".mov"}}
 
-        for filename in paths:
-            
-            # construct the full path to the file that will be copied.
-            source_path = str(Path.joinpath(paths[filename][0], filename))
-
+        for source_path in paths:
             # iterate through the accepted file types dictionary
             for file_type in file_types:
                 
