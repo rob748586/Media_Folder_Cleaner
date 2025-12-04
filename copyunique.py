@@ -97,5 +97,6 @@ def main():
 
         copy_unique_files_to_destination(output_path, paths, file_types)
 
-main()
+if __name__ == "__main__":
+    main()
 
